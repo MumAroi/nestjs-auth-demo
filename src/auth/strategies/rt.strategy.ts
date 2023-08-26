@@ -2,9 +2,10 @@ import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { Request } from "express";
 import { Injectable } from "@nestjs/common";
+import { JwtPayload } from "../types";
 
 @Injectable()
-export class RtStrategy extends PassportStrategy(Strategy, "jwt") {
+export class RtStrategy extends PassportStrategy(Strategy, "jwt-refresh") {
 	constructor() {
 		super({
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -13,11 +14,11 @@ export class RtStrategy extends PassportStrategy(Strategy, "jwt") {
 		});
 	}
 
-	validate(req: Request, payload: any) {
-		const refreshTokens = req.get("authorization").replace("Bearer", "").trim();
+	validate(req: Request, payload: JwtPayload) {
+		const refreshToken = req.get("authorization").replace("Bearer", "").trim();
 		return {
 			...payload,
-			refreshTokens,
+			refreshToken,
 		};
 	}
 }
