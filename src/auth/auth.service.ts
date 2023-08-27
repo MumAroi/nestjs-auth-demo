@@ -19,7 +19,7 @@ export class AuthService {
 		const newUser = await this.prisma.user.create({
 			data: {
 				email: dto.email,
-				hash,
+				password: hash,
 			},
 		});
 		const tokens = await this.getTokens(newUser.id, newUser.email);
@@ -37,7 +37,7 @@ export class AuthService {
 
 		if (!user) throw new ForbiddenException("Access Denied");
 
-		const passwordMatches = await argon2.verify(user.hash, dto.password);
+		const passwordMatches = await argon2.verify(user.password, dto.password);
 
 		if (!passwordMatches) throw new ForbiddenException("Access Denied");
 
@@ -51,12 +51,12 @@ export class AuthService {
 		await this.prisma.user.updateMany({
 			where: {
 				id: userId,
-				hashedRt: {
+				refreshToken: {
 					not: null,
 				},
 			},
 			data: {
-				hashedRt: null,
+				refreshToken: null,
 			},
 		});
 	}
@@ -65,7 +65,7 @@ export class AuthService {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				id: userId,
-				hashedRt: {
+				refreshToken: {
 					not: null,
 				},
 				deletedAt: null,
@@ -73,7 +73,7 @@ export class AuthService {
 		});
 		if (!user) throw new ForbiddenException("Access Denied");
 
-		const rtMatches = await argon2.verify(user.hashedRt, rt);
+		const rtMatches = await argon2.verify(user.refreshToken, rt);
 
 		if (!rtMatches) throw new ForbiddenException("Access Denied");
 
@@ -90,7 +90,7 @@ export class AuthService {
 				id: userId,
 			},
 			data: {
-				hashedRt: hash,
+				refreshToken: hash,
 			},
 		});
 	}

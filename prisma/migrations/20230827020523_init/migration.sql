@@ -5,8 +5,11 @@ CREATE TABLE "users" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "deletedAt" TIMESTAMP(3),
     "email" TEXT NOT NULL,
-    "hash" TEXT NOT NULL,
-    "hashedRt" TEXT,
+    "password" TEXT NOT NULL,
+    "refreshToken" TEXT,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
